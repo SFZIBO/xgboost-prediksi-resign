@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Attrition Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <header class="bg-primary text-white text-center py-4 mb-4">
+            <h1 class="display-4">Employee Attrition Prediction</h1>
+            <p class="lead">Prediksi kemungkinan karyawan resign menggunakan AI</p>
+        </header>
+
+        <div class="row">
+            <!-- Form Input -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h3 class="mb-0">Input Data Karyawan</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="prediction-form">
+                            <div class="row g-3">
+                                <!-- Bagian 1: Informasi Dasar -->
+                                <div class="col-12">
+                                    <h5 class="border-bottom pb-2">📝 Informasi Dasar</h5>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Umur</label>
+                                    <input type="number" name="Age" class="form-control" 
+                                           value="{{ default_values.Age }}" min="18" max="65" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Jarak dari Rumah (km)</label>
+                                    <input type="number" name="DistanceFromHome" class="form-control" 
+                                           value="{{ default_values.DistanceFromHome }}" min="1" max="50" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Masa Kerja Total (tahun)</label>
+                                    <input type="number" name="TotalWorkingYears" class="form-control" 
+                                           value="{{ default_values.TotalWorkingYears }}" min="0" max="40" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Lama di Perusahaan (tahun)</label>
+                                    <input type="number" name="YearsAtCompany" class="form-control" 
+                                           value="{{ default_values.YearsAtCompany }}" min="0" max="40" required>
+                                </div>
+                                
+                                <!-- Bagian 2: Kepuasan Kerja -->
+                                <div class="col-12 mt-3">
+                                    <h5 class="border-bottom pb-2">😊 Kepuasan Kerja</h5>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Kepuasan Lingkungan Kerja</label>
+                                    <select name="EnvironmentSatisfaction" class="form-select" required>
+                                        <option value="1" {% if default_values.EnvironmentSatisfaction == 1 %}selected{% endif %}>1 - Sangat Tidak Puas</option>
+                                        <option value="2" {% if default_values.EnvironmentSatisfaction == 2 %}selected{% endif %}>2 - Tidak Puas</option>
+                                        <option value="3" {% if default_values.EnvironmentSatisfaction == 3 %}selected{% endif %}>3 - Cukup Puas</option>
+                                        <option value="4" {% if default_values.EnvironmentSatisfaction == 4 %}selected{% endif %}>4 - Sangat Puas</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Kepuasan Pekerjaan</label>
+                                    <select name="JobSatisfaction" class="form-select" required>
+                                        <option value="1" {% if default_values.JobSatisfaction == 1 %}selected{% endif %}>1 - Sangat Tidak Puas</option>
+                                        <option value="2" {% if default_values.JobSatisfaction == 2 %}selected{% endif %}>2 - Tidak Puas</option>
+                                        <option value="3" {% if default_values.JobSatisfaction == 3 %}selected{% endif %}>3 - Cukup Puas</option>
+                                        <option value="4" {% if default_values.JobSatisfaction == 4 %}selected{% endif %}>4 - Sangat Puas</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Keseimbangan Kerja-Hidup</label>
+                                    <select name="WorkLifeBalance" class="form-select" required>
+                                        <option value="1" {% if default_values.WorkLifeBalance == 1 %}selected{% endif %}>1 - Buruk</option>
+                                        <option value="2" {% if default_values.WorkLifeBalance == 2 %}selected{% endif %}>2 - Kurang Baik</option>
+                                        <option value="3" {% if default_values.WorkLifeBalance == 3 %}selected{% endif %}>3 - Baik</option>
+                                        <option value="4" {% if default_values.WorkLifeBalance == 4 %}selected{% endif %}>4 - Sangat Baik</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Bagian 3: Kompensasi -->
+                                <div class="col-12 mt-3">
+                                    <h5 class="border-bottom pb-2">💰 Kompensasi</h5>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Penghasilan Bulanan ($)</label>
+                                    <input type="number" name="MonthlyIncome" class="form-control" 
+                                           value="{{ default_values.MonthlyIncome }}" min="1000" max="20000" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Kenaikan Gaji (%)</label>
+                                    <input type="number" name="PercentSalaryHike" class="form-control" 
+                                           value="{{ default_values.PercentSalaryHike }}" min="0" max="25" step="0.1" required>
+                                </div>
+                                
+                                <!-- Bagian 4: Kategori Penting -->
+                                <div class="col-12 mt-3">
+                                    <h5 class="border-bottom pb-2">📊 Kategori Penting</h5>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Departemen</label>
+                                    <select name="Department" class="form-select" required>
+                                        {% for option in category_options.Department %}
+                                        <option value="{{ option }}" {% if default_values.Department == option %}selected{% endif %}>{{ option }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Peran Pekerjaan</label>
+                                    <select name="JobRole" class="form-select" required>
+                                        {% for option in category_options.JobRole %}
+                                        <option value="{{ option }}" {% if default_values.JobRole == option %}selected{% endif %}>{{ option }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Lembur</label>
+                                    <select name="OverTime" class="form-select" required>
+                                        {% for option in category_options.OverTime %}
+                                        <option value="{{ option }}" {% if default_values.OverTime == option %}selected{% endif %}>{{ option }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label class="form-label">Status Pernikahan</label>
+                                    <select name="MaritalStatus" class="form-select" required>
+                                        {% for option in category_options.MaritalStatus %}
+                                        <option value="{{ option }}" {% if default_values.MaritalStatus == option %}selected{% endif %}>{{ option }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="bi bi-stars me-2"></i>Prediksi Kemungkinan Resign
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hasil Prediksi -->
+            <div class="col-md-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header bg-warning text-dark">
+                        <h3 class="mb-0">📊 Hasil Prediksi</h3>
+                    </div>
+                    <div class="card-body" id="prediction-result">
+                        <div class="text-center py-5">
+                            <i class="bi bi-question-circle display-1 text-secondary mb-3"></i>
+                            <h3 class="text-muted">Masukkan data karyawan dan klik "Prediksi"</h3>
+                            <p class="text-muted mt-2">Sistem akan menganalisis kemungkinan karyawan resign berdasarkan 30+ faktor</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="bg-dark text-white text-center py-3 mt-4">
+            <p class="mb-0">Employee Attrition Prediction System &copy; 2025 | Powered by XGBoost AI</p>
+            <p class="mb-0 small">Model trained on IBM HR Analytics Dataset with 85% accuracy</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
