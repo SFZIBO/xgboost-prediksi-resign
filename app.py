@@ -140,5 +140,6 @@ def get_recommendation(risk_level, employee_data):
         ]
 
 if __name__ == '__main__':
+    import os
     os.makedirs('models', exist_ok=True)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
